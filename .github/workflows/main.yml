@@ -39,36 +39,36 @@ jobs:
           branch: gh-pages
           folder: dist/my-app
 
-      # ⭐ Login to Docker Hub
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # # ⭐ Login to Docker Hub
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # ⭐ Build Docker image using your project name (my-app)
-      - name: Build Docker image
-        run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/my-app
-          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} .
+      # # ⭐ Build Docker image using your project name (my-app)
+      # - name: Build Docker image
+      #   run: |
+      #     IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/my-app
+      #     docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} .
 
-      # ⭐ Run health check before pushing
-      - name: Run Docker container for testing
-        run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/my-app
-          docker run -d -p 8080:80 --name angular-test $IMAGE_NAME: latest
-          sleep 5
-          curl -I http://localhost:8080 || (docker logs angular-test && exit 1)
-          docker stop angular-test
-          docker rm angular-test
-          echo "Container OK!"
+      # # ⭐ Run health check before pushing
+      # - name: Run Docker container for testing
+      #   run: |
+      #     IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/my-app
+      #     docker run -d -p 8080:80 --name angular-test $IMAGE_NAME: latest
+      #     sleep 5
+      #     curl -I http://localhost:8080 || (docker logs angular-test && exit 1)
+      #     docker stop angular-test
+      #     docker rm angular-test
+      #     echo "Container OK!"
 
-      # ⭐ Push Docker image
-      - name: Push Docker image
-        run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/my-app
-          docker push $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:${{ github.sha }}
+      # # ⭐ Push Docker image
+      # - name: Push Docker image
+      #   run: |
+      #     IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/my-app
+      #     docker push $IMAGE_NAME:latest
+      #     docker push $IMAGE_NAME:${{ github.sha }}
 
 # name: Build, Test, and Deploy Angular (GitHub Pages + Private Docker Hub)
 
