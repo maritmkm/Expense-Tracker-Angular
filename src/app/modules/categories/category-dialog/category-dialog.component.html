@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Category' : 'New Category' }}</h2>
+<mat-dialog-content>
+    <form [formGroup]="form" class="dialog-form">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Category Name</mat-label>
+            <input matInput formControlName="name" placeholder="Ex: Groceries">
+            <mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
+        </mat-form-field>
+
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Icon</mat-label>
+                <mat-select formControlName="icon">
+                    <mat-select-trigger>
+                        <div class="d-flex align-center" *ngIf="form.get('icon')?.value">
+                            <mat-icon class="mr-1">{{ form.get('icon')?.value }}</mat-icon>
+                            {{ form.get('icon')?.value }}
+                        </div>
+                    </mat-select-trigger>
+                    <mat-option *ngFor="let icon of icons" [value]="icon">
+                        <div class="d-flex align-center">
+                            <mat-icon>{{ icon }}</mat-icon> {{ icon }}
+                        </div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Color</mat-label>
+                <mat-select formControlName="color">
+                    <mat-select-trigger>
+                        <div class="d-flex align-center" *ngIf="form.get('color')?.value">
+                            <span class="color-dot" [style.background-color]="form.get('color')?.value"></span>
+                            {{ form.get('color')?.value }}
+                        </div>
+                    </mat-select-trigger>
+                    <mat-option *ngFor="let color of colors" [value]="color">
+                        <div class="d-flex align-center">
+                            <span class="color-dot" [style.background-color]="color"></span> {{ color }}
+                        </div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid">
+        {{ isEditMode ? 'Update' : 'Create' }}
+    </button>
+</mat-dialog-actions>

@@ -1,0 +1,63 @@
+<div class="page-container">
+    <div class="header-actions">
+        <div class="header-title">
+            <h1>Categories</h1>
+            <p class="subtitle">Manage your expense categories</p>
+        </div>
+        <button mat-raised-button color="primary" (click)="openDialog()">
+            <mat-icon>add</mat-icon> New Category
+        </button>
+    </div>
+
+    <div class="categories-grid">
+        <mat-card class="category-card" *ngFor="let cat of categories$ | async">
+            <mat-card-header>
+                <div mat-card-avatar class="cat-avatar" [style.background-color]="cat.color + '20'">
+                    <mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
+                </div>
+                <mat-card-title>{{ cat.name }}</mat-card-title>
+                <mat-card-subtitle>
+                    <span class="color-dot" [style.background-color]="cat.color"></span>
+                    {{ cat.color }}
+                </mat-card-subtitle>
+                <div class="spacer"></div>
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="openDialog(cat)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                    <button mat-menu-item (click)="deleteCategory(cat.id)">
+                        <mat-icon>delete</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+            </mat-card-header>
+
+            <mat-card-content>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Spent</span>
+                        <span class="stat-value">{{ cat.total | currency }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Transactions</span>
+                        <span class="stat-value">{{ cat.count }}</span>
+                    </div>
+                </div>
+                <div class="avg-row">
+                    <span class="avg-label">Average:</span>
+                    <span class="avg-value">{{ cat.avg | currency }}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Add New Card Placeholder -->
+        <div class="add-card-placeholder" (click)="openDialog()">
+            <mat-icon>add_circle_outline</mat-icon>
+            <span>Add New Category</span>
+        </div>
+    </div>
+</div>

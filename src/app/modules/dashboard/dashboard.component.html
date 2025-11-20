@@ -1,0 +1,99 @@
+<div class="dashboard-container">
+    <!-- Header & Filters -->
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Dashboard</h1>
+            <p class="subtitle">Overview of your finances</p>
+        </div>
+        <div class="date-filter">
+            <mat-form-field appearance="outline" class="date-range-field">
+                <mat-label>Date Range</mat-label>
+                <mat-date-range-input [rangePicker]="picker">
+                    <input matStartDate placeholder="Start date">
+                    <input matEndDate placeholder="End date">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+        <mat-card class="summary-card total">
+            <mat-card-content>
+                <div class="icon-circle">
+                    <mat-icon>account_balance_wallet</mat-icon>
+                </div>
+                <div class="card-info">
+                    <span class="label">Total Expenses</span>
+                    <span class="value">{{ (totalExpenses$ | async) | currency }}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="summary-card month">
+            <mat-card-content>
+                <div class="icon-circle">
+                    <mat-icon>calendar_today</mat-icon>
+                </div>
+                <div class="card-info">
+                    <span class="label">This Month</span>
+                    <span class="value">$1,250.00</span> <!-- Mock -->
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="summary-card daily">
+            <mat-card-content>
+                <div class="icon-circle">
+                    <mat-icon>trending_up</mat-icon>
+                </div>
+                <div class="card-info">
+                    <span class="label">Avg. Daily</span>
+                    <span class="value">{{ (avgDailySpend$ | async) | currency }}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+        <!-- Monthly Trend -->
+        <mat-card class="chart-card trend-card">
+            <mat-card-header>
+                <mat-card-title>Monthly Trend</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="chart-content">
+                <div class="bar-chart-container">
+                    <!-- Simple CSS Bar Chart for Trend -->
+                    <div class="chart-bar-wrapper" *ngFor="let item of monthlyTrend$ | async">
+                        <div class="bar-fill" [style.height.%]="(item.value / 1000) * 100"></div>
+                        <span class="bar-label">{{ item.name }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Category Distribution -->
+        <mat-card class="chart-card category-card">
+            <mat-card-header>
+                <mat-card-title>Category Distribution</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="category-list-content">
+                <div class="category-item" *ngFor="let cat of categoryStats$ | async">
+                    <div class="cat-info">
+                        <div class="cat-name-icon">
+                            <mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
+                            <span>{{ cat.name }}</span>
+                        </div>
+                        <span class="cat-amount">{{ cat.total | currency }}</span>
+                    </div>
+                    <mat-progress-bar mode="determinate"
+                        [value]="getPercentage(cat.total, (totalExpenses$ | async) || 1)"
+                        [style.accent-color]="cat.color"></mat-progress-bar>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

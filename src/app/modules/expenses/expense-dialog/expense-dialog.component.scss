@@ -1,0 +1,34 @@
+.dialog-form {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+    gap: 16px;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+
+    @media (max-width: 600px) {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
+.category-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    mat-icon {
+        margin-right: 0;
+    }
+}
+
+.full-width {
+    width: 100%;
+}
+
+.flex-1 {
+    flex: 1;
+}

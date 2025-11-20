@@ -1,0 +1,120 @@
+<div class="page-container">
+    <div class="header-actions">
+        <div class="header-title">
+            <h1>Expenses</h1>
+            <p class="subtitle">Track and manage your spending</p>
+        </div>
+        <div class="action-buttons">
+            <button mat-stroked-button (click)="exportData()">
+                <mat-icon>download</mat-icon> Export
+            </button>
+            <button mat-raised-button color="primary" (click)="openDialog()">
+                <mat-icon>add</mat-icon> Add Expense
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters Toolbar -->
+    <mat-card class="filters-card mb-3">
+        <mat-card-content class="filters-content">
+            <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search</mat-label>
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Description or Category">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="date-range-field">
+                <mat-label>Date Range</mat-label>
+                <mat-date-range-input [rangePicker]="picker">
+                    <input matStartDate placeholder="Start" [(ngModel)]="filterStartDate"
+                        (dateChange)="applyDateFilter()">
+                    <input matEndDate placeholder="End" [(ngModel)]="filterEndDate" (dateChange)="applyDateFilter()">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Sort By</mat-label>
+                <mat-select [(value)]="sortBy">
+                    <mat-option value="date">Date</mat-option>
+                    <mat-option value="amount">Amount</mat-option>
+                    <mat-option value="category">Category</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Order</mat-label>
+                <mat-select [(value)]="sortOrder">
+                    <mat-option value="asc">Ascending</mat-option>
+                    <mat-option value="desc">Descending</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button mat-button color="warn" (click)="clearFilters()"
+                *ngIf="filterCategoryId || filterStartDate || dataSource.filter">
+                <mat-icon>clear</mat-icon> Clear
+            </button>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Expenses Table -->
+    <div class="table-container mat-elevation-z2">
+        <table mat-table [dataSource]="dataSource" matSort>
+
+            <!-- Description Column -->
+            <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
+                <td mat-cell *matCellDef="let element" class="font-bold"> {{ element.description }} </td>
+            </ng-container>
+
+            <!-- Category Column -->
+            <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Category </th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="category-chip" [style.background-color]="getCategoryColor(element.categoryId) + '20'"
+                        [style.color]="getCategoryColor(element.categoryId)">
+                        <mat-icon class="chip-icon">{{ getCategoryIcon(element.categoryId) }}</mat-icon>
+                        {{ element.categoryName }}
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- Amount Column -->
+            <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
+                <td mat-cell *matCellDef="let element" class="amount-cell"> {{ element.amount | currency }} </td>
+            </ng-container>
+
+            <!-- Date Column -->
+            <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+                <td mat-cell *matCellDef="let element" class="text-muted"> {{ element.date | date:'mediumDate' }} </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-right"> Actions </th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                    <button mat-icon-button color="primary" (click)="openDialog(element)" matTooltip="Edit">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteExpense(element.id)" matTooltip="Delete">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover-row"></tr>
+        </table>
+
+        <mat-paginator [pageSizeOptions]="[10, 25, 100]" aria-label="Select page of expenses"></mat-paginator>
+
+        <div *ngIf="dataSource.data.length === 0" class="no-data-state">
+            <mat-icon>receipt_long</mat-icon>
+            <p>No expenses found.</p>
+            <button mat-stroked-button color="primary" (click)="openDialog()">Add Expense</button>
+        </div>
+    </div>
+</div>
