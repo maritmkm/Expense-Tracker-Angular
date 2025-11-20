@@ -1,0 +1,80 @@
+name: Build, Test, and Deploy Angular (GitHub Pages + Private Docker Hub)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # 4️⃣ Run security audit (non-blocking)
+      - name: Security audit
+        run: npm audit --audit-level=high || true
+
+      # 5️⃣ Build Angular app
+      - name: Build Angular app
+        run: npm run build -- --configuration production --base-href "/angularCICD/"
+
+      # 6️⃣ Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: dist/angularCICD/browser
+
+      # 7️⃣ Login to Docker Hub (Private Repo)
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 8️⃣ Build Docker image (tagged with 'latest' and commit SHA)
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/angularcicd
+          echo "Building image: $IMAGE_NAME"
+          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} .
+
+      # 9️⃣ Test the Docker container before pushing
+      - name: Run Docker container for testing
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/angularcicd
+          echo "Starting test container..."
+          docker run -d -p 8080:80 --name angular-test $IMAGE_NAME:latest
+          echo "Waiting for container startup..."
+          sleep 5
+          echo "Performing health check..."
+          curl -I http://localhost:8080 || (echo "❌ Container health check failed!" && docker logs angular-test && exit 1)
+          docker stop angular-test
+          docker rm angular-test
+          echo "✅ Container tested successfully!"
+
+      # 🔟 Push image to Docker Hub (private)
+      - name: Push Docker image to Docker Hub
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/angularcicd
+          echo "Pushing Docker image to private repo..."
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:${{ github.sha }}
